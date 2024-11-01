@@ -8,13 +8,14 @@ from typing import Text
 import os
 from translate import Translator
 import json
+import matplotlib.pyplot as plt
+import io
 API_TOKEN=os.getenv('API_TOKEN')
 bot = teleBot.bot(API_TOKEN)
 Langs = ['Ru', 'En']
 Lang = "Ru"
 Outputs = ['.txt', 'message']
 Output = ['.txt']
-AIs = ['GPT3.5t', 'GPT4m']
 Credits = "Bot created by Arcane Dev team and EvolveAI"
 Set = [Lang,Output,AIs]
 lightspeed=300000000
@@ -61,24 +62,35 @@ def CheightR(Cheight, message, x, y):
        x = float.arg1 or int.arg1
        y = float.arg1[2] or int.arg1[2] 
    except (IndexError, ValueError):
-        response = 'Пожалуйста, введите команду в формате: /Cheight <int>/<float>, <int>/<float> (float - Обязательно через "." к примеру 1.546)'
+        response = bot.send_message (chat.id'Пожалуйста, введите команду в формате: /Cheight <int>/<float>, <int>/<float> (float - Обязательно через "." к примеру 1.546)')
    bot.polling()
-      
+   Cheight()
        
 
 
-def Cheight(x, y):
-    peaks, _ = find_peaks(y)
-peak_x = x[peaks]
-peak_y = y[peaks]
+def Cheight(x, y, message):
+ peaks, _ = find_peaks(y)
+ peak_x = x[peaks]
+ peak_y = y[peaks]
 
-for i in range(len(peaks)):
+ for i in range(len(peaks)):
     half_max = peak_y[i] / 2
     left_index = np.where(y[:peaks[i]] <= half_max)[0][-1]
     right_index = np.where(y[peaks[i]:] <= half_max)[0][0] + peaks[i]
     width = x[right_index] - x[left_index]
-    
+
     reply= bot.send_message(chat.id, f'Пик в {peak_x[i]:.2f} с шириной на полувысоте {width:.2f}')
+    plt.plot(x)
+    plt.plot(peaks, x[peaks], "x")
+    plt.hlines(*results_half[1:], color="C2")
+    plt.hlines(*results_full[1:], color="C3")
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
+    buf.seek(0)
+    plt.close()
+    bot.send_photo(message.chat.id, buf)
+    bot.polling()
+
 
 
 def Lang():
@@ -125,13 +137,12 @@ def Presets():
 def power_to_fluence(power, area, time):
     return power / (area * time)
 
-def Flaser_script(self):
-     try:
-        # Извлечение аргументов
+def Flaser_script(self, message):
+    try:
         args = message.text.split()
-        power = float(args[1])  # Мощность лазера
-        area = 1.0  # Например, 1 см² (можно поменять по нужде)
-        time = 1.0  # Например, 1 секунда (можно поменять по нужде)
+        power = float(args[1])  
+        area = 1.0  
+        time = 1.0 
         
         fluence = power_to_fluence(power, area, time)
         bot.reply_to(message, f'Флюенс: {fluence} Дж/см²')
@@ -148,20 +159,20 @@ def AI(message, self):
     "message": "Как думаешь, сколько будет 2+9?",
     "api_key": CHAD_API_KEY}
 
-# Отправляем запрос и дожидаемся ответа
+
   response = requests.post(url='https://ask.chadgpt.ru/api/public/gpt-4o-mini',
                          json=request_json)
-  telebot.bot(chat.id, send_message )
+  telebot.bot(chat.id, send_message(response))
 
-# Проверяем, отправился ли запрос
+
   if response.status_code != 200:
     print(f'Ошибка! Код http-ответа: {response.status_code}')
     bot.message_send(chat.id, f'Ошибка! Код http-ответа: {response.status_code}')   
   else:
-    # Получаем текст ответа и преобразовываем в dict
+
      resp_json = response.json()
 
-    # Если успешен ответ, то выводим
+
      if resp_json['is_success']:
         resp_msg = resp_json['response']
         used_words = resp_json['used_words_count']
@@ -179,3 +190,4 @@ def Settings():
 
 def Output():
     None
+#Мы ничего не успели!
