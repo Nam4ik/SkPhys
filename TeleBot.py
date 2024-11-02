@@ -57,39 +57,58 @@ def txt_cnvrt(self, message, chat):
        bot.polling()
 
 def CheightR(message, x, y, chat):
- if '/Cheight' or '/cheight' in message:
-   try:
-       arg = message.text.split()[1]
-       arg1= message.text.split(",")[2]
-       x = float.arg1 or int.arg1
-       y = float.arg1[2] or int.arg1[2] 
-   except (IndexError, ValueError):
-       response = bot.send_message(chat.id'Пожалуйста, введите команду в формате: /Cheight <int>/<float>, <int>/<float>/. float - Обязательно через "." к примеру 1.546')
+# if '/Cheight' or '/cheight' in message:
+#   try:
+#       arg = message.text.split()[1]
+#       arg1= message.text.split(",")[2]
+#       x = float.arg1 or int.arg1
+#       y = float.arg1[2] or int.arg1[2] 
+#   except (IndexError, ValueError):
+#       response = bot.send_message(chat.id'Пожалуйста, введите команду в формате: /Cheight <int>/<float>, <int>/<float>/. float - Обязательно через "." к примеру 1.546')
+   bot.send_message(chat.id, 'Чтобы вызвать /Cheight отправьте файл "spectum.txt", и вызовите /Cheight в этом же сообщении')
    bot.polling()
-   Cheight()
+   Cheight('spectrum.txt', message, chat)
        
 
 
-def Cheight(x, y, message, chat):
- peaks, _ = find_peaks(y)
- peak_x = x[peaks]
- peak_y = y[peaks]
+def Cheight(file_path, message, chat):
+    
+    data = np.loadtxt(file_path)  
+    x = data[:, 0]  
+    y = data[:, 1]  
 
- for i in range(len(peaks)):
-    half_max = peak_y[i] / 2
-    left_index = np.where(y[:peaks[i]] <= half_max)[0][-1]
-    right_index = np.where(y[peaks[i]:] <= half_max)[0][0] + peaks[i]
-    width = x[right_index] - x[left_index]
+    
+    peaks, _ = find_peaks(y)
+    peak_x = x[peaks]
+    peak_y = y[peaks]
 
-    reply= bot.send_message(chat.id, f'Пик в {peak_x[i]:.2f} с шириной на полувысоте {width:.2f}')
-    plt.plot(x)
-    plt.plot(peaks, x[peaks], "x")
-    plt.hlines(*results_half[1:], color="C2")
-    plt.hlines(*results_full[1:], color="C3")
+    plt.figure(figsize=(10, 6))
+    plt.plot(x, y, label='Спектр')  
+    plt.xlabel('Длина волны')
+    plt.ylabel('Интенсивность')
+    plt.title('Спектр с отмеченными пиками и шириной на полувысоте')
+    
+    
+    for i in range(len(peaks)):
+        half_max = peak_y[i] / 2 
+        left_index = np.where(y[:peaks[i]] <= half_max)[0][-1]  # Индекс левой границы
+        right_index = np.where(y[peaks[i]:] <= half_max)[0][0] + peaks[i]  # Индекс правой границы
+        width = x[right_index] - x[left_index]  # Ширина на полувысоте
+
+      
+        reply = bot.send_message(chat.id, f'Пик в {peak_x[i]:.2f} с шириной на полувысоте {width:.2f}')
+
+        
+        plt.plot(peak_x[i], peak_y[i], "x", label='Пик', color='red')
+        plt.hlines(half_max, x[left_index], x[right_index], color='C2', linestyle='--', label='Полувысота')
+
+    plt.legend()
+    
+ 
     buf = io.BytesIO()
     plt.savefig(buf, format='png')
     buf.seek(0)
-    plt.close()
+    plt.close()  
     bot.send_photo(message.chat.id, buf)
     bot.polling()
 
@@ -112,7 +131,7 @@ def send_constants(message):
 
 bot.polling()
 
-def help(message):
+def help(message, chat):
 
     if '/help' in message:
         bot.send_message(chat.id, '''
@@ -126,6 +145,7 @@ def help(message):
       /Const - Выводит некоторые физические константы 
       /Aistat - посмотреть статистику ии
       Чтобы все было правильно вводите все данные в СИ!
+      /cheight - .txt
       ''')
 
 def credits(message, chat):
@@ -164,7 +184,7 @@ def AI(message, self, chat):
   if "/AI" or "/ai" in message:
    response = requests.post(url='https://ask.chadgpt.ru/api/public/gpt-4o-mini',
                          json=request_json)
-   telebot.bot(chat.id, send_message(response))
+   bot.send_message(chat.id, response)
 
 
   if response.status_code != 200:
