@@ -6,10 +6,10 @@ import requests
 import telebot
 from typing import Text
 import os
-from translate import Translator
 import json
 import matplotlib.pyplot as plt
 import io
+flags=['/rev','/exc']
 API_TOKEN=os.getenv('API_TOKEN')
 bot = teleBot.bot(API_TOKEN)
 Langs = ['Ru', 'En']
@@ -20,6 +20,7 @@ Credits = "Bot created by Arcane Dev team and EvolveAI"
 Set = [Lang,Output,AIs]
 lightspeed=300000000
 lightspedt=299792458
+cnvrt = lightspeed / wave
 CHAD_API_KEY = os.getenv('CHAD_API_KEY')
 @bot.message_handler(commands=['help', 'start', 'wave', 'flaser' ,'Cheight', 'lang', 'credits', 'settings', 'AI', 'PreSets'])
 def welcome(message):
@@ -27,10 +28,8 @@ def welcome(message):
     Я - бот помощник молодого физика cозданный для Sk challenge. 
     Напиши /help для ознакомления со способностями. 
     ''')
-def wavei(message, self, wave):
  if "/wave" or "/Wave" in message:
    try:
-             
         arg = message.text.split()[1]  
         int_value = int(arg)  
         response = f'Вы передали значение: {int_value}'
@@ -40,7 +39,8 @@ def wavei(message, self, wave):
    bot.polling()
 
 def Wave_script(message, wave):
-    cnvrt = lightspeed / wave
+    if "/exc" or "/Exc" in message:
+      cnvrt = lightspeedt / wave 
     m = 1000000
     mhz = cnvrt / m
     bot.send_message(chat.id, f'Частота волны равна {round(cnvrt, 1)} Гц или {round(mhz, 1)} Мгц')
@@ -121,7 +121,6 @@ def help(message):
       /settings - настройки
       /AI - выбор AI
       /PreSets - выбор пресетов 
-      /Cheight - 
       /Const - Выводит некоторые физические константы 
       Чтобы все было правильно вводите все данные в СИ!
       ''')
