@@ -11,42 +11,44 @@ import matplotlib.pyplot as plt
 import io
 flags=['/rev','/exc']
 API_TOKEN=os.getenv('API_TOKEN')
-bot = teleBot.bot(API_TOKEN)
+bot = telebot.bot(API_TOKEN)
 Langs = ['Ru', 'En']
 Lang = "Ru"
 Outputs = ['.txt', 'message']
 Output = ['.txt']
 Credits = "Bot created by Arcane Dev team and EvolveAI"
-Set = [Lang,Output,AIs]
+Set = [Lang,Output]
 lightspeed=300000000
 lightspedt=299792458
-cnvrt = lightspeed / wave
 CHAD_API_KEY = os.getenv('CHAD_API_KEY')
-@bot.message_handler(commands=['help', 'start', 'wave', 'flaser' ,'Cheight', 'lang', 'credits', 'settings', 'AI', 'PreSets'])
+@bot.message_handler(commands=['help', 'start', 'wave', 'flaser' ,'Cheight', 'lang', 'credits', 'settings', 'AI', 'PreSets', 'AIstat'])
 def welcome(message):
     bot.reply_to(message, '''
     Я - бот помощник молодого физика cозданный для Sk challenge. 
     Напиши /help для ознакомления со способностями. 
     ''')
- if "/wave" or "/Wave" in message:
-   try:
+def Waved(message, chat):
+    if "/wave" or "/Wave" in message:
+      try:
         arg = message.text.split()[1]  
         int_value = int(arg)  
-        response = f'Вы передали значение: {int_value}'
-   except (IndexError, ValueError):
-        response = 'Пожалуйста, введите команду в формате: /wave <int>'
-   wave=int_value
-   bot.polling()
+        response = bot.send_message(f'Вы передали значение: {int_value}')
+      except (IndexError, ValueError):
+        response = bot.send_message('Пожалуйста, введите команду в формате: /wave <int>')
+    bot.polling()
+    wave=int_value
 
-def Wave_script(message, wave):
+def Wave_script(message, wave, chat):
     if "/exc" or "/Exc" in message:
-      cnvrt = lightspeedt / wave 
+      cnvrt = lightspedt / wave 
+    else:
+      cnvrt = lightspeed / wave
     m = 1000000
     mhz = cnvrt / m
     bot.send_message(chat.id, f'Частота волны равна {round(cnvrt, 1)} Гц или {round(mhz, 1)} Мгц')
 
 
-def txt_cnvrt(self, message):
+def txt_cnvrt(self, message, chat):
     if '/wave' in message:
       with open('output.txt', 'w') as f:
        f.write(Wave_script())
@@ -54,7 +56,7 @@ def txt_cnvrt(self, message):
        bot.send_message(chat.id, f)
        bot.polling()
 
-def CheightR(Cheight, message, x, y):
+def CheightR(message, x, y, chat):
  if '/Cheight' or '/cheight' in message:
    try:
        arg = message.text.split()[1]
@@ -62,13 +64,13 @@ def CheightR(Cheight, message, x, y):
        x = float.arg1 or int.arg1
        y = float.arg1[2] or int.arg1[2] 
    except (IndexError, ValueError):
-        response = bot.send_message (chat.id'Пожалуйста, введите команду в формате: /Cheight <int>/<float>, <int>/<float> (float - Обязательно через "." к примеру 1.546)')
+       response = bot.send_message(chat.id'Пожалуйста, введите команду в формате: /Cheight <int>/<float>, <int>/<float>/. float - Обязательно через "." к примеру 1.546')
    bot.polling()
    Cheight()
        
 
 
-def Cheight(x, y, message):
+def Cheight(x, y, message, chat):
  peaks, _ = find_peaks(y)
  peak_x = x[peaks]
  peak_y = y[peaks]
@@ -122,10 +124,11 @@ def help(message):
       /AI - выбор AI
       /PreSets - выбор пресетов 
       /Const - Выводит некоторые физические константы 
+      /Aistat - посмотреть статистику ии
       Чтобы все было правильно вводите все данные в СИ!
       ''')
 
-def credits(message):
+def credits(message, chat):
     if '/credits' in message and Lang == "Ru":
         bot.send_message(chat.id, "Created by Arcane Dev team and EvolveAI, @ArcaneDevStudio , @Evolve_AI. For Skchallenge kids. Contact me - @Nam4iks")
     if '/credits' in message and Lang == "En":
@@ -153,15 +156,15 @@ def Flaser_script(self, message):
 bot.polling()
 
     
-def AI(message, self):
+def AI(message, self, chat):
   request_json = {
     "message": "Как думаешь, сколько будет 2+9?",
-    "api_key": CHAD_API_KEY}
+    "api_key": json.load("api_key") or os.getenv("CHAD_API_KEY")}
 
-
-  response = requests.post(url='https://ask.chadgpt.ru/api/public/gpt-4o-mini',
+  if "/AI" or "/ai" in message:
+   response = requests.post(url='https://ask.chadgpt.ru/api/public/gpt-4o-mini',
                          json=request_json)
-  telebot.bot(chat.id, send_message(response))
+   telebot.bot(chat.id, send_message(response))
 
 
   if response.status_code != 200:
@@ -172,13 +175,13 @@ def AI(message, self):
      resp_json = response.json()
 
 
-     if resp_json['is_success']:
+     if resp_json['is_success'] and "/Aistat" or "/AIStat" or "/AiStat" or "/aistat" in message:
         resp_msg = resp_json['response']
         used_words = resp_json['used_words_count']
-        print(f'Ответ от бота: {resp_msg}\nПотрачено слов: {used_words}')
+        bot.reply_to(message, f'Ответ от бота: {resp_msg}\nПотрачено слов: {used_words}')
      else:
         error = resp_json['error_message']
-        print(f'Ошибка: {error}')
+        bot.reply_to(message, f'Ошибка: {error}')
 
 
 
