@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import io
 flags=['/rev','/exc']
 API_TOKEN=os.getenv('API_TOKEN')
-bot = telebot.bot(API_TOKEN)
+bot = telebot.TeleBot(API_TOKEN)
 Langs = ['Ru', 'En']
 Lang = "Ru"
 Outputs = ['.txt', 'message']
@@ -21,6 +21,7 @@ Set = [Lang,Output]
 lightspeed=300000000
 lightspedt=299792458
 CHAD_API_KEY = os.getenv('CHAD_API_KEY')
+
 @bot.message_handler(commands=['help', 'start', 'wave', 'flaser' ,'Cheight', 'lang', 'credits', 'settings', 'AI', 'PreSets', 'AIstat'])
 def welcome(message):
     bot.reply_to(message, '''
@@ -47,15 +48,63 @@ def Wave_script(message, wave, chat):
     mhz = cnvrt / m
     bot.send_message(chat.id, f'Частота волны равна {round(cnvrt, 1)} Гц или {round(mhz, 1)} Мгц')
 
+def power_to_fluence(power, area, time):
+    return power / (area * time)
 
-def txt_cnvrt(self, message, chat):
-    if '/wave' in message:
-      with open('output.txt', 'w') as f:
-       f.write(Wave_script())
-       bot.reply_to(message)
-       bot.send_message(chat.id, f)
-       bot.polling()
+def Flaser_script(self, message):
+    try:
+        args = message.text.split()
+        power = float(args[1])  
+        area = 1.0  
+        time = 1.0 
+        
+        fluence = power_to_fluence(power, area, time)
+        bot.reply_to(message, f'Флюенс: {fluence} Дж/см²')
+    except (IndexError):
+        bot.reply_to(message, 'Пожалуйста, укажите мощность!')
+    except (ValueError):
+        bot.reply_to(message, 'Пожалуйста, введите корректное число!')
 
+bot.polling()
+
+    
+class Flags():
+   def WaveRev(message, chat, self):
+    if "/Rev" or "/rev" and "/wave" or "/Wave" in message:
+      try:
+        arg = message.text.split()[1]  
+        value = int(arg) or float(arg) 
+        response = bot.send_message(f'Вы передали значение: {value}')
+      except (IndexError, ValueError):
+        response = bot.send_message('Что-то пошло не так ,попробуйте снова и проверьте команду на наличие ошибок')
+      if "/exc" or "/Exc" in message:
+         revv = lightspedt * value
+         ms = 3.6
+         kmh = revv*ms,
+         bot.send_message(chat.id f'Скорость фотона = {round(revv, 3)}М/с или {round(kmh, 3)}км/ч')
+      else: 
+         revv = lightspeed * value
+         ms = 3.6
+         kmh = revv*ms,
+         bot.send_message(chat.id f'Скорость фотона = {round(revv, 1)}М/с или {round(kmh, 1)}км/ч')
+         
+    def fluenseRev(chat, message, self):
+       if "/Rev" or "/rev" and "/flaser" or "/Flaser" in message:
+        try:
+         args = message.text.split()
+         fluence = float(args[1])  or int(args[1])
+         time = 1 #Second
+         fl = 1 #Cm2
+         power = fluence * fl * time
+         bot.reply_to(message, f'Мощность лазера за 1 секунду на 1кв. см: {power} Вт')
+        except (IndexError):
+         bot.reply_to(message, 'Пожалуйста, укажите мощность!')
+        except (ValueError):
+         bot.reply_to(message, 'Пожалуйста, введите корректное число!')
+        if "/Exc" or "/exc" and "/flaser" or "/Flaser" in message:
+           IndexError 
+       else:
+          pass
 def CheightR(message, x, y, chat):
 # if '/Cheight' or '/cheight' in message:
 #   try:
@@ -103,8 +152,6 @@ def Cheight(file_path, message, chat):
         plt.hlines(half_max, x[left_index], x[right_index], color='C2', linestyle='--', label='Полувысота')
 
     plt.legend()
-    
- 
     buf = io.BytesIO()
     plt.savefig(buf, format='png')
     buf.seek(0)
@@ -145,7 +192,7 @@ def help(message, chat):
       /Const - Выводит некоторые физические константы 
       /Aistat - посмотреть статистику ии
       Чтобы все было правильно вводите все данные в СИ!
-      /cheight - .txt
+      /cheight - spectrum.txt
       ''')
 
 def credits(message, chat):
@@ -156,26 +203,6 @@ def credits(message, chat):
 
 def Presets():
     None
-def power_to_fluence(power, area, time):
-    return power / (area * time)
-
-def Flaser_script(self, message):
-    try:
-        args = message.text.split()
-        power = float(args[1])  
-        area = 1.0  
-        time = 1.0 
-        
-        fluence = power_to_fluence(power, area, time)
-        bot.reply_to(message, f'Флюенс: {fluence} Дж/см²')
-    except (IndexError):
-        bot.reply_to(message, 'Пожалуйста, укажите мощность!')
-    except (ValueError):
-        bot.reply_to(message, 'Пожалуйста, введите корректное число!')
-
-bot.polling()
-
-    
 def AI(message, self, chat):
   request_json = {
     "message": "Как думаешь, сколько будет 2+9?",
