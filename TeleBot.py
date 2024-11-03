@@ -88,7 +88,7 @@ class Flags():
          kmh = revv*ms,
          bot.send_message(chat.id f'Скорость фотона = {round(revv, 1)}М/с или {round(kmh, 1)}км/ч')
          
-    def fluenseRev(chat, message, self):
+   def fluenseRev(chat, message, self):
        if "/Rev" or "/rev" and "/flaser" or "/Flaser" in message:
         try:
          args = message.text.split()
