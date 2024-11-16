@@ -1,6 +1,7 @@
 
 
 import telebot
+from telebot import types
 import numpy as np
 from scipy.signal import find_peaks
 import math
@@ -9,10 +10,10 @@ import os
 import json
 import matplotlib.pyplot as plt
 import io
+import api
 
 flags = ['/rev', '/exc']
-API_TOKEN = '7851183070:AAFqfoPQ5TXY_5oxeboVR532bkpNLvfUinA'
-bot = telebot.TeleBot(API_TOKEN)
+bot = telebot.TeleBot(api.API_TOKEN)
 Langs = ['Ru', 'En']
 Lang = "Ru"
 Outputs = ['.txt', 'message']
@@ -20,15 +21,30 @@ Output = ['.txt']
 Credits = "Bot created by Arcane Dev team and EvolveAI"
 lightspeed = 300000000
 lightspedt = 299792458
-CHAD_API_KEY = os.getenv('CHAD_API_KEY')
+CHAD_API_KEY = api.CHAD_API_KEY
+markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+func = types.KeyboardButton('Функции')
+fcredit = types.KeyboardButton('О создателях')
+reply = types.KeyboardButton('Связаться с нами')
+btn = types.KeyboardButton('Настройки')
+btn0 = types.KeyboardButton('ИИ')
+btn1 = types.KeyboardButton('Помощь')
+btn2 = types.KeyboardButton('Оценки')
+btn3 = types.KeyboardButton('Посмотреть оценки')
+btn4 = types.KeyboardButton('Флюенс лазерной системы')
+btn5 = types.KeyboardButton('Мощность лазерной системы')
+btn6 = types.KeyboardButton('Пик и его ширина в полувысоте')
+btn7 = types.KeyboardButton('Частота излучения в длину волны')
+btn8 = types.KeyboardButton('Длина волны в частоту')
+btnn = types.KeyboardButton('Колебательный контур')
 
 @bot.message_handler(commands=['start'])
 def welcome(message):
+    markup.add(btn, btn1, btn2, btn3)
     bot.reply_to(message, '''
     Я - бот помощник молодого физика, созданный для Sk challenge.
     Напиши /help для ознакомления со способностями.
     ''')
-
 @bot.message_handler(commands=['wave'])
 def waveD(message):
     try:
@@ -64,83 +80,6 @@ def Flaser_script(message,chat):
         args = message.text.split()
         power = float(args[1])
         bot.send_message(chat.id , 'Напишите площадь (см2)')
-<<<<<<< HEAD
-        try:
-             area = int(message.text)
-             bot.send_message(chat.id, f'Вы передали значение {area}cm2')
-        except IndexError:
-             bot.send_message(chat.id, 'Ошибка! Попробуйте изменить промт!')
-        bot.send_message(chat.id, 'Теперь отправьте время sec!')
-        try:
-            time = int(message.text)
-            bot.send_message(chat.id, f'Вы передали значение {time}sec')
-        except IndexError:
-            bot.send_message(chat.id, 'Ошибка! Попробуйте изменить промт!')
-
-        fluence = power_to_fluence(power, area, time)
-        bot.send_message(chat.id, f'Флюенс: {fluence} Дж/см²')
-    except (IndexError, ValueError):
-        bot.send_message(chat.id, 'Ошибка! Попробуйте заново ввести промт!')
-
-def WaveRev(message):
-    try:
-        arg = message.text.split()[1]
-        value = float(arg)
-        response = bot.send_message(message.chat.id, f'Вы передали значение: {value}')
-
-        if "/exc" in message.text:
-            revv = lightspedt * value
-        else:
-            revv = lightspeed * value
-
-        ms = 3.6
-        kmh = revv * ms
-        bot.send_message(message.chat.id, f'Скорость фотона = {round(revv, 1)} М/с или {round(kmh, 1)} км/ч')
-    except (IndexError, ValueError):
-        bot.send_message(message.chat.id, 'Ошибка! Попробуйте заново ввести промт!')
-
-def fluenseRev(message):
-    if "/Rev" in message.text and "/flaser" in message.text:
-        try:
-            args = message.text.split()
-            fluence = float(args[1])
-            time = 1  # Second
-            fl = 1  # Cm2
-            power = fluence * fl * time
-            bot.reply_to(message, f'Мощность лазера за 1 секунду на 1 кв. см: {power} Вт')
-        except (IndexError, ValueError):
-            bot.reply_to(message, 'Ошибка! Попробуйте заново ввести промт!')
-
-def CheightR(message):
-    bot.send_message(message.chat.id, 'Чтобы вызвать /Cheight отправьте файл "spectrum.txt", и вызовите /Cheight в этом же сообщении')
-
-def Cheight(file_path, message):
-    try:
-        data = np.loadtxt(file_path)
-        x = data[:, 0]
-        y = data[:, 1]
-
-        peaks, _ = find_peaks(y)
-        peak_x = x[peaks]
-        peak_y = y[peaks]
-
-        plt.figure(figsize=(10, 6))
-        plt.plot(x, y, label='Спектр')
-        plt.xlabel('Длина волны')
-        plt.ylabel('Интенсивность')
-        plt.title('Спектр с отмеченными пиками и шириной на полувысоте')
-
-        for i in range(len(peaks)):
-            half_max = peak_y[i] / 2
-            left_index = np.where(y[:peaks[i]] <= half_max)[0][-1]
-            right_index = np.where(y[peaks[i]:] <= half_max)[0][0] + peaks[i]
-            width = x[right_index] - x[left_index]
-
-            bot.send_message(message.chat.id, f'Пик в {peak_x[i]:.3f} с шириной на полувысоте {width:.2f}')
-            plt.plot(peak_x[i], peak_y[i], "x", label='Пик', color='red')
-            plt.hlines(half_max, x[left_index], x[right_index], color='C3', linestyle='--', label='Полувысота')
-
-=======
         try:
              area = int(message.text)
              bot.send_message(chat.id, f'Вы передали значение {area}cm2')
@@ -216,7 +155,6 @@ def Cheight(file_path, message):
             plt.plot(peak_x[i], peak_y[i], "x", label='Пик', color='red')
             plt.hlines(half_max, x[left_index], x[right_index], color='C3', linestyle='--', label='Полувысота')
 
->>>>>>> refs/remotes/origin/master
         plt.legend()
         buf = io.BytesIO()
         plt.savefig(buf, format='png')
@@ -290,6 +228,7 @@ def AI(message):
 
 #
 def rate_step(message, chat):
+        global allrates
         index = 0
         bot.send_message(chat.id, 'Введите вашу оценку. От 1 до 10')
         try:
@@ -334,19 +273,11 @@ def last_rates(message, allratesr, chat):
     Числовой рейтинг: {irateint}''')
 
 @bot.message_handler(commands=['rating'])
-<<<<<<< HEAD
-def callrating(message, chat):
-    last_rates(message, allratesr, message.chat)
-
-@bot.message_handler(commands=['rate'])
-def callratings(message, chat):
-=======
 def callrating(message):
-    last_rates(message, allratesr, message.chat)
+    last_rates(message, allrates, message.chat)
 
 @bot.message_handler(commands=['rate'])
 def callratings(message):
->>>>>>> refs/remotes/origin/master
     rate_step(message, message.chat)
 
 @bot.message_handler(commands=['settings'])
@@ -354,11 +285,7 @@ def settings(message):
     pass
 
 @bot.message_handler(commands=['AI'])
-<<<<<<< HEAD
-def callAI(message, chat):
-=======
 def callAI(message):
->>>>>>> refs/remotes/origin/master
     AI(message)
 
 @bot.message_handler(commands=['Rwave'])
@@ -374,13 +301,8 @@ def CallWave(message):
     waveD(message)
 
 @bot.message_handler(commands=['flaser'])
-<<<<<<< HEAD
-def callFlaser(message, chat):
-    Flaser_script(message, chat)
-=======
 def callFlaser(message):
     Flaser_script(message)
->>>>>>> refs/remotes/origin/master
 
 @bot.message_handler(commands=['CheightR'])
 def callCheightr(message):
@@ -397,4 +319,15 @@ def callCheight(message):
     else:
         bot.send_message(message.chat.id, 'Пожалуйста, отправьте файл "spectrum.txt".')
 
+@bot.message_handler(commands=['menu'])
+def menu(bot, message, chat):
+    bot.send_message=('Меню')
+    markup.add(func, fcredit, btn0, btn1, btn2)
+def buttlogic(message, chat):
+  if (message.text == "ИИ"):
+      AI()
+  if (message.text == "О создателях"):
+      bot.send_message(credits)
+  if (message.text == "Оценки"):
+      callrating()
 bot.polling()
