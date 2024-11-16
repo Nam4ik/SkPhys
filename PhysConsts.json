@@ -1,0 +1,43 @@
+
+{
+    "speed_of_light": {
+        "value": 299792458,
+        "unit": "m/s"
+    },
+    "gravitational_constant": {
+        "value": 6.67430e-11,
+        "unit": "m^3 kg^-1 s^-2"
+    },
+    "planck_constant": {
+        "value": 6.62607015e-34,
+        "unit": "J s"
+    },
+    "avogadro_number": {
+        "value": 6.02214076e23,
+        "unit": "mol^-1"
+    },
+    "gas_constant": {
+        "value": 8.314,
+        "unit": "J (K^-1 mol^-1)"
+    },
+    "Boltzmann_constant": {
+        "value": 1.380649e-23,
+        "unit": "J K^-1"
+    },
+    "electron_mass": {
+        "value": 9.10938356e-31,
+        "unit": "kg"
+    },
+    "muon_mass": {
+        "value": 1.883531594e-28,
+        "unit": "kg"
+    },
+    "proton_mass": {
+        "value": 1.6726219e-27,
+        "unit": "kg"
+    },
+    "neutron_mass": {
+        "value": 1.675e-27,
+        "unit": "kg"
+    }
+}
