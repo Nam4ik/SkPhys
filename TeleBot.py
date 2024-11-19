@@ -23,6 +23,7 @@ lightspeed = 300000000
 lightspedt = 299792458
 CHAD_API_KEY = api.CHAD_API_KEY
 markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+exit = types.KeyboardButton('Назад')
 func = types.KeyboardButton('Функции')
 fcredit = types.KeyboardButton('О создателях')
 reply = types.KeyboardButton('Связаться с нами')
@@ -75,27 +76,76 @@ def Wave_script(message, wave):
 def power_to_fluence(power, area, time):
     return power / (area * time)
 
-def Flaser_script(message,chat):
-    try:
-        args = message.text.split()
-        power = float(args[1])
-        bot.send_message(chat.id , 'Напишите площадь (см2)')
-        try:
-             area = int(message.text)
-             bot.send_message(chat.id, f'Вы передали значение {area}cm2')
-        except IndexError:
-             bot.send_message(chat.id, 'Ошибка! Попробуйте изменить промт!')
-        bot.send_message(chat.id, 'Теперь отправьте время sec!')
-        try:
-            time = int(message.text)
-            bot.send_message(chat.id, f'Вы передали значение {time}sec')
-        except IndexError:
-            bot.send_message(chat.id, 'Ошибка! Попробуйте изменить промт!')
+def Flaser_script(message, chat):
+    bot.send_message(chat.id ,"Укажите значение мощности лазерной системы в Wt (int)")
+    args = message.text.split()
 
+    try:
+        power = float(args)
+        bot.send_message(message.chat.id, 'Напишите площадь (см²)')
+        bot.register_next_step_handler(message, process_area, power)
+    except ValueError:
+        bot.reply_to(message, 'Ошибка! Убедитесь, что мощность указана правильно.')
+
+def process_area(message, power):
+    try:
+        area = float(message.text)
+        bot.send_message(message.chat.id, 'Теперь отправьте время (секунды)!')
+        bot.register_next_step_handler(message, process_time, power, area)
+    except ValueError:
+        bot.send_message(message.chat.id, 'Ошибка! Пожалуйста, введите площадь в числовом формате.')
+
+def process_time(message, power, area):
+    try:
+        time = float(message.text)
         fluence = power_to_fluence(power, area, time)
-        bot.reply_to(message, f'Флюенс: {fluence} Дж/см²')
-    except (IndexError, ValueError):
-        bot.reply_to(message, 'Ошибка! Попробуйте заново ввести промт!')
+        bot.reply_to(message, f'Флюенс: {fluence:.2f} Дж/см²')
+    except ValueError:
+        bot.send_message(message.chat.id, 'Ошибка! Пожалуйста, введите время в числовом формате.')
+
+# Удаляем ненужные raise и обрабатываем исключения
+def WaveRev(message):
+    args = message.text.split()
+    if len(args) < 2:
+        bot.send_message(message.chat.id, 'Ошибка! Необходимо указать значение.')
+        return
+    
+    try:
+        value = float(args[1])
+        if "/exc" in message.text:
+            revv = lightspedt * value
+        else:
+            revv = lightspeed * value
+
+        ms = 3.6
+        kmh = revv * ms
+        bot.send_message(message.chat.id, f'Скорость фотона = {round(revv, 1)} М/с или {round(kmh, 1)} км/ч')
+    except ValueError:
+        bot.send_message(message.chat.id, 'Ошибка! Убедитесь, что значение указано правильно.')
+
+
+def rate_step(message, chat):
+    bot.send_message(chat.id, 'Введите вашу оценку. От 1 до 10')
+    bot.register_next_step_handler(message, process_rating)
+
+def process_rating(message):
+    try:
+        rate = int(message.text)
+        if rate < 1 or rate > 10:
+            bot.send_message(message.chat.id, "Ошибка! Оценка должна быть от 1 до 10.")
+            return
+
+        # Сохранение оценки
+        with open('rates.json', 'r') as f:
+            allrates = json.load(f)
+        
+        allrates.append(rate)
+        with open('rates.json', 'w') as f:
+            json.dump(allrates, f)
+
+        bot.send_message(message.chat.id, 'Спасибо за оценку!')
+    except ValueError:
+        bot.send_message(message.chat.id, 'Ошибка! Пожалуйста, введите числовую оценку.')
 
 def WaveRev(message):
     try:
@@ -129,9 +179,13 @@ def fluenseRev(message):
 def CheightR(message):
     bot.send_message(message.chat.id, 'Чтобы вызвать /Cheight отправьте файл "spectrum.txt", и вызовите /Cheight в этом же сообщении')
 
-def Cheight(file_path, message):
+def Cheight(message, chat):
+    with open("specrum.txt", "r") as spectr:
+        spectr.read
+        if spectr.read==True:
+            bot.send_message(chat.id ,"Файл загружен")
     try:
-        data = np.loadtxt(file_path)
+        data = np.loadtxt(spectr)
         x = data[:, 0]
         y = data[:, 1]
 
@@ -162,7 +216,7 @@ def Cheight(file_path, message):
         plt.close()
         bot.send_photo(message.chat.id, buf)
     except Exception as e:
-        bot.send_message(message.chat.id, 'Произошла ошибка при обработке файла спектра.')
+        bot.send_message(message.chat.id, 'Произошла ошибка при обработке файла спектра. Проверьте правильность синтаксиса на https://numpy.org/doc/stable/reference/generated/numpy.loadtxt.html')
 
 @bot.message_handler(commands=['constants'])
 def send_constants(message):
@@ -206,13 +260,18 @@ def help(message):
 def credits(message):
     bot.send_message(message.chat.id, "Создано командой Arcane Dev team и EvolveAI, @ArcaneDevStudio , @Evolve_AI. Для детей из Skchallenge. Контакт - @Nam4iks")
 
-def AI(message):
+def AI(message, chat):
+    AI = 'GPT4o'
     request_json = {
         "message": "Как думаешь, сколько будет 2+9?",
         "api_key": CHAD_API_KEY
     }
-
-    if "/AI" in message.text:
+    bot.send_message(chat.id, "Введите промт")
+    promt = message.text 
+    global answer
+    requests.post(url='https://ask.chadgpt.ru/api/public/gpt-4o-mini', answer=request_json)
+    bot.send_message(f'{AI} ответил: {answer}')
+    if "/AILogs" in message.text:
         response = requests.post(url='https://ask.chadgpt.ru/api/public/gpt-4o-mini', json=request_json)
         if response.status_code != 200:
             bot.send_message(message.chat.id, f'Ошибка! Код http-ответа: {response.status_code}')
@@ -226,46 +285,34 @@ def AI(message):
                 error = resp_json['error_message']
                 bot.reply_to(message.chat.id, f'Ошибка: {error}')
 
-#
-def rate_step(message, chat):
-        global allrates
-        index = 0
-        bot.send_message(chat.id, 'Введите вашу оценку. От 1 до 10')
-        try:
-            ratel = message.text.split()
-            rates = [value for value in ratel if isinstance(value, int)]
-            rate = int(rates)
-            print(type(rate))
-            if rate < 1 or rate > 10:
-                raise ValueError
-        except ValueError:
-            index += 1
-            bot.send_message(message.chat.id, "Спасибо за оценку!")
-        ratel = message.text.split()
-        rates = [value for value in ratel if isinstance(value, int)]
-        rate = int(rate)
-        allrates = [None]
-        allrates.insert(index, rate)
-        with open('rates.json', 'w') as f:
-            json.dump(allrates, f)
+
+def rate_step(message):
+    bot.send_message(message.chat.id, 'Введите вашу оценку. От 1 до 10')
+    bot.register_next_step_handler(message, process_rating)
+
+def process_rating(message):
+    try:
+        rate = int(message.text)
+        if rate < 1 or rate > 10:
+            bot.send_message(message.chat.id, "Ошибка! Оценка должна быть от 1 до 10.")
+            return
+
+        # Сохранение оценки
         with open('rates.json', 'r') as f:
             allrates = json.load(f)
-        int_values = [item for item in allrates if isinstance(item, int)]
-        str_values = [item for item in allrates if isinstance(item, str)]
-        rate = sum(int_values) / len(int_values)
-        irate = str_values[-5:]
-        bot.send_message(chat.id, f'Последние 5 текстовых отзывов {irate}')
-        bot.send_message(chat.id, f'Средняя оценка: {rate}')
-        bot.send_message(chat.id, 'Оставьте текстовый отзыв. Если не хотите напишите pass')
 
-        if message.text == 'pass':
-            bot.send_message(chat.id, 'Спасибо за оценку!')
+        allrates.append(rate)
+        with open('rates.json', 'w') as f:
+            json.dump(allrates, f)
+
+        bot.send_message(message.chat.id, 'Спасибо за оценку!')
+    except ValueError:
+        bot.send_message(message.chat.id, 'Ошибка! Пожалуйста, введите числовую оценку.')
 
 
-
-def last_rates(message, allratesr, chat):
-    int_values = [item for item in allratesr if isinstance(item, int)]
-    str_values = [item for item in allratesr if isinstance(item, str)]
+def last_rates(message, allrates, chat):
+    int_values = [item for item in allrates if isinstance(item, int)]
+    str_values = [item for item in allrates if isinstance(item, str)]
     irate = str_values[-5:]
     irateint = int_values[-5:]
     bot.send_message(chat.id, f'''
@@ -273,8 +320,8 @@ def last_rates(message, allratesr, chat):
     Числовой рейтинг: {irateint}''')
 
 @bot.message_handler(commands=['rating'])
-def callrating(message):
-    last_rates(message, allrates, message.chat)
+def callrating(message, chat):
+    last_rates(message, chat)
 
 @bot.message_handler(commands=['rate'])
 def callratings(message):
@@ -320,14 +367,41 @@ def callCheight(message):
         bot.send_message(message.chat.id, 'Пожалуйста, отправьте файл "spectrum.txt".')
 
 @bot.message_handler(commands=['menu'])
-def menu(bot, message, chat):
-    bot.send_message=('Меню')
+def menu(message):
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     markup.add(func, fcredit, btn0, btn1, btn2)
-def buttlogic(message, chat):
-  if (message.text == "ИИ"):
-      AI()
-  if (message.text == "О создателях"):
-      bot.send_message(credits)
-  if (message.text == "Оценки"):
-      callrating()
+    bot.send_message(message.chat.id, 'Меню открыто, проверьте клавиатуру.', reply_markup=markup)
+
+@bot.message_handler(func=lambda message: message.text == 'Функции')
+def funckey(message):
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    markup.add(btn4, btn5, btn6, btn7, btn8, btnn, exit)
+    bot.send_message(message.chat.id, "Функции на вашей клавиатуре. Нажмите назад чтобы перейти в основное меню", reply_markup=markup)
+
+@bot.message_handler(func=lambda message: message.text == "Назад")
+def exitb(message): 
+    bot.send_message(message.chat.id, "Основное меню")
+    menu(message)
+
+@bot.message_handler(func=lambda message: message.text == "ИИ")
+def handle_ai(message):
+    AI(message)
+
+@bot.message_handler(func=lambda message: message.text == "О создателях")
+def handle_credits(message):
+    credits(message)
+
+@bot.message_handler(func=lambda message: message.text == "Оценки")
+def handle_rating(message):
+    callrating(message)
+
+@bot.message_handler(func=lambda message: message.text == "Длина волны в частоту")
+def handle_wavelength_to_frequency(message):
+    Wave_script(message)
+@bot.message_handler(func=lambda message: message.text == "Помощь")
+def help2(message):
+    help(message)
+@bot.message_handler(func=lambda message: message.text == "Пик и его ширина в полувысоте")
+def cheightcall(message, file_path):
+  Cheight(message, file_path)
 bot.polling()
