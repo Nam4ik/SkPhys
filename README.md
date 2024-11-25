@@ -66,3 +66,13 @@ _Телеграмм остальных участников проекта -_ **
 <h2>Победа 🥳</h2>
 
 Победа! Бот выполнил свою цель! Мы смогли победить на **[Skolkovo kids 2024](https://Sk.kids.ru/skkidschallenge)**
+
+<p align=center>
+<img src=/README/Skolkovo.jpg>
+<img src=/README/almatea.jpg>
+<img src=/README/almatea2.jpg>
+<img src=/README/braslet.jpg>
+<img src=/README/skbest_img.jpg>
+<img src=/README/skfest.jpg>
+<img src=/README/skfest2.jpg>
+<p>
