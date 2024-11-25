@@ -61,3 +61,8 @@ _Телеграмм остальных участников проекта -_ **
 
 ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge\&logo=python\&logoColor=ffdd54)
 ![SciPy](https://img.shields.io/badge/SciPy-%230C55A5.svg?style=for-the-badge\&logo=scipy\&logoColor=%white)
+
+
+<h2>Победа 🥳</h2>
+
+Победа! Бот выполнил свою цель! Мы смогли победить на **[Skolkovo kids 2024](https://Sk.kids.ru/skkidschallenge)**
