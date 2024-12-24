@@ -1,6 +1,6 @@
 numpy
 scipy
-pyTelegramBotAPI  # telebot
+pyTelegramBotAPI  
 matplotlib
 requests
-
+json 
